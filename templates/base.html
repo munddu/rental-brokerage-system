@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Rental Brokerage System</title>
+<link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+<nav class="navbar">
+<div class="brand"><a href="/">Rental Brokerage System</a></div>
+<div class="nav-links">
+<a href="/">Home</a><a href="/properties/">Browse Rentals</a>
+{% if user.is_authenticated %}
+{% if user.profile.role == 'Landlord' %}<a href="/landlord-dashboard/">Landlord Dashboard</a><a href="/properties/add/">Post Property</a>{% endif %}
+{% if user.is_staff %}<a href="/admin-dashboard/">Admin Dashboard</a>{% endif %}
+<a href="/logout/">Logout</a>
+{% else %}<a href="/login/">Login</a><a href="/register/">Register</a>{% endif %}
+</div>
+</nav>
+{% if messages %}<div class="messages">{% for message in messages %}<div class="message">{{ message }}</div>{% endfor %}</div>{% endif %}
+<main class="container">{% block content %}{% endblock %}</main>
+<footer><p>Web-Based Rental Brokerage Automation System | Prices in UGX</p></footer>
+</body>
+</html>

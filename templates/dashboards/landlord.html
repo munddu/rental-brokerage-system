@@ -1,0 +1,9 @@
+{% extends 'base.html' %}{% block content %}
+<h2>Landlord Dashboard</h2><a class="btn" href="/properties/add/">Add New Property</a>
+<h3>My Properties</h3><table><tr><th>Title</th><th>Area</th><th>Price</th><th>Status</th></tr>
+{% for property in properties %}<tr><td>{{ property.title }}</td><td>{{ property.area }}</td><td>UGX {{ property.price }}</td><td>{{ property.status }}</td></tr>
+{% empty %}<tr><td colspan="4">No properties posted yet.</td></tr>{% endfor %}</table>
+<h3>Tenant Inquiries</h3><table><tr><th>Property</th><th>Tenant</th><th>Message</th><th>Date</th></tr>
+{% for inquiry in inquiries %}<tr><td>{{ inquiry.property.title }}</td><td>{{ inquiry.tenant.username }}</td><td>{{ inquiry.message }}</td><td>{{ inquiry.created_at }}</td></tr>
+{% empty %}<tr><td colspan="4">No inquiries yet.</td></tr>{% endfor %}</table>
+{% endblock %}

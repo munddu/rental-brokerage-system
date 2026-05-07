@@ -1,0 +1,14 @@
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f5f7fb;color:#222}
+.navbar{background:#1f2937;color:white;padding:14px 8%;display:flex;justify-content:space-between;align-items:center}
+.navbar a{color:white;text-decoration:none;margin-left:15px}.brand a{font-weight:bold;font-size:18px}
+.container{width:84%;margin:30px auto}.hero{background:white;padding:40px;border-radius:14px;box-shadow:0 2px 8px #ddd;margin-bottom:30px}
+.hero h1{margin-top:0;font-size:34px}.search-box,.filter-box{display:flex;gap:12px;flex-wrap:wrap;margin-top:20px}
+input,select,textarea{width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:8px}.search-box input,.search-box select,.filter-box input,.filter-box select{width:220px}
+button,.btn{background:#2563eb;color:white;border:none;padding:10px 16px;border-radius:8px;text-decoration:none;display:inline-block;cursor:pointer}.btn.danger{background:#dc2626}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px}.card,.form-card{background:white;border-radius:14px;padding:18px;box-shadow:0 2px 8px #ddd}
+.card img{width:100%;height:180px;object-fit:cover;border-radius:10px}.placeholder{height:180px;background:#e5e7eb;border-radius:10px;display:flex;align-items:center;justify-content:center}
+.form-card{max-width:650px;margin:0 auto}.form-card.small{margin-top:25px}.detail-layout{display:grid;grid-template-columns:1fr 1fr;gap:28px}
+.detail-img,.video{width:100%;border-radius:12px;background:#ddd}.detail-info{background:white;padding:24px;border-radius:14px}
+table{width:100%;border-collapse:collapse;background:white;margin-bottom:30px}th,td{padding:12px;border-bottom:1px solid #e5e7eb;text-align:left}th{background:#f1f5f9}
+.messages{width:84%;margin:18px auto 0}.message{background:#dbeafe;padding:12px;border-radius:8px;margin-bottom:8px}footer{text-align:center;padding:20px;color:#555}
+@media(max-width:800px){.navbar,.detail-layout{display:block}.nav-links a{display:inline-block;margin-top:10px}.container{width:94%}}

@@ -1,0 +1,4 @@
+{% extends 'base.html' %}{% block content %}
+<div class="form-card"><h2>Post Rental Property</h2><p>All prices must be entered in Ugandan Shillings (UGX).</p>
+<form method="post" enctype="multipart/form-data">{% csrf_token %}{{ form.as_p }}<button>Submit for Approval</button></form></div>
+{% endblock %}
