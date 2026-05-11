@@ -20,6 +20,8 @@ class Property(models.Model):
     description=models.TextField()
     area=models.CharField(max_length=50,choices=KAMPALA_AREAS)
     price=models.PositiveIntegerField()
+    total_units = models.PositiveIntegerField(default=1)
+    booked_units = models.PositiveIntegerField(default=0)
     access_road_description=models.TextField()
     facilities=models.TextField(blank=True)
     image=models.ImageField(upload_to='property_images/',blank=True,null=True)
@@ -28,6 +30,9 @@ class Property(models.Model):
     admin_comment=models.TextField(blank=True)
     created_at=models.DateTimeField(auto_now_add=True)
     class Meta: ordering=['-created_at']
+    @property
+    def available_units(self):
+        return self.total_units - self.booked_units
     def __str__(self): return f'{self.title} - {self.area}'
 
 class Inquiry(models.Model):
@@ -37,3 +42,23 @@ class Inquiry(models.Model):
     created_at=models.DateTimeField(auto_now_add=True)
     class Meta: ordering=['-created_at']
     def __str__(self): return f'Inquiry by {self.tenant.username}'
+
+class Booking(models.Model):
+        property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name='bookings')
+        tenant = models.ForeignKey(User, on_delete=models.CASCADE, related_name='bookings')
+        message = models.TextField(blank=True)
+        status = models.CharField(max_length=20, default='Pending')
+        landlord_response = models.TextField(blank=True)
+        created_at = models.DateTimeField(auto_now_add=True)
+
+        def __str__(self):
+            return f"Booking by {self.tenant.username} for {self.property.title}"
+        
+class InquiryResponse(models.Model):
+        inquiry = models.OneToOneField('Inquiry', on_delete=models.CASCADE, related_name='response')
+        landlord = models.ForeignKey(User, on_delete=models.CASCADE)
+        response = models.TextField()
+        created_at = models.DateTimeField(auto_now_add=True)
+
+        def __str__(self):
+            return f"Response to inquiry {self.inquiry.id}"

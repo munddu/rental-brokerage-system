@@ -2,7 +2,8 @@
 <h2>Administrator Dashboard</h2><h3>Pending Properties</h3>
 <table><tr><th>Title</th><th>Area</th><th>Price</th><th>Landlord</th><th>Action</th></tr>
 {% for property in pending %}<tr><td>{{ property.title }}</td><td>{{ property.area }}</td><td>UGX {{ property.price }}</td><td>{{ property.landlord.username }}</td>
-<td><a class="btn" href="/admin-dashboard/approve/{{ property.id }}/">Approve</a> <a class="btn danger" href="/admin-dashboard/reject/{{ property.id }}/">Reject</a></td></tr>
+<td><a class="btn" href="/admin-dashboard/approve/{{ property.id }}/">Preview & Approve</a>
+<a class="btn danger" href="/admin-dashboard/reject/{{ property.id }}/">Preview & Reject</a></td></tr>
 {% empty %}<tr><td colspan="5">No pending properties.</td></tr>{% endfor %}</table>
 <h3>Recently Approved</h3><ul>{% for property in approved %}<li>{{ property.title }} - {{ property.area }} - UGX {{ property.price }}</li>{% empty %}<li>No approved properties yet.</li>{% endfor %}</ul>
 {% endblock %}

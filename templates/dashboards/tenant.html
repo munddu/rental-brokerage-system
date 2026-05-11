@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h2>Tenant Dashboard</h2>
+
+<h3>My Bookings</h3>
+<table>
+    <tr>
+        <th>Property</th>
+        <th>Area</th>
+        <th>Price</th>
+        <th>Status</th>
+        <th>Landlord Response</th>
+    </tr>
+
+    {% for booking in bookings %}
+    <tr>
+        <td>{{ booking.property.title }}</td>
+        <td>{{ booking.property.area }}</td>
+        <td>UGX {{ booking.property.price }}</td>
+        <td>{{ booking.status }}</td>
+        <td>{{ booking.landlord_response }}</td>
+    </tr>
+    {% empty %}
+    <tr>
+        <td colspan="5">You have not made any bookings yet.</td>
+    </tr>
+    {% endfor %}
+</table>
+
+<h3>My Inquiries</h3>
+<table>
+    <tr>
+        <th>Property</th>
+        <th>Message</th>
+        <th>Landlord Response</th>
+    </tr>
+
+    {% for inquiry in inquiries %}
+    <tr>
+        <td>{{ inquiry.property.title }}</td>
+        <td>{{ inquiry.message }}</td>
+        <td>
+            {% if inquiry.response %}
+                {{ inquiry.response.response }}
+            {% else %}
+                No response yet
+            {% endif %}
+        </td>
+    </tr>
+    {% empty %}
+    <tr>
+        <td colspan="3">You have not sent any inquiries yet.</td>
+    </tr>
+    {% endfor %}
+</table>
+
+{% endblock %}

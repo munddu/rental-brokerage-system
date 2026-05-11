@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h2>Preview Property Before {{ action|title }}</h2>
+
+<h3>{{ property.title }}</h3>
+
+<p><strong>Area:</strong> {{ property.area }}</p>
+<p><strong>Price:</strong> UGX {{ property.price }}/month</p>
+<p><strong>Total Units:</strong> {{ property.total_units }}</p>
+<p><strong>Booked Units:</strong> {{ property.booked_units }}</p>
+<p><strong>Available Units:</strong> {{ property.available_units }}</p>
+
+<p><strong>Description:</strong></p>
+<p>{{ property.description }}</p>
+
+<p><strong>Access Road:</strong></p>
+<p>{{ property.access_road_description }}</p>
+
+<p><strong>Facilities:</strong></p>
+<p>{{ property.facilities }}</p>
+
+{% if property.image %}
+    <img src="{{ property.image.url }}" width="400">
+{% endif %}
+
+{% if property.video %}
+    <video width="400" controls>
+        <source src="{{ property.video.url }}">
+    </video>
+{% endif %}
+
+<form method="post">
+    {% csrf_token %}
+
+    <label>Admin Comment / Reason</label>
+    <textarea name="admin_comment" required></textarea>
+
+    <button type="submit">
+        {{ action|title }} Property
+    </button>
+</form>
+
+{% endblock %}

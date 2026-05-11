@@ -1,13 +1,69 @@
-{% extends 'base.html' %}{% block content %}
-<div class="detail-layout"><div>
-{% if property.image %}<img class="detail-img" src="{{ property.image.url }}">{% endif %}
-{% if property.video %}<h3>Property / Access Road Video</h3><video class="video" controls><source src="{{ property.video.url }}"></video>{% endif %}
-</div><div class="detail-info">
-<h2>{{ property.title }}</h2><p><b>Area:</b> {{ property.area }}</p><p><b>Price:</b> UGX {{ property.price }}/month</p>
-<p><b>Description:</b></p><p>{{ property.description }}</p>
-<p><b>Access Road:</b></p><p>{{ property.access_road_description }}</p>
-<p><b>Nearby Facilities:</b></p><p>{{ property.facilities|default:"Not specified" }}</p>
-<p><b>Landlord:</b> {{ property.landlord.get_full_name|default:property.landlord.username }}</p>
-{% if user.is_authenticated %}<form method="post" action="/inquiry/{{ property.id }}/" class="form-card small">{% csrf_token %}<h3>Send Inquiry</h3>{{ inquiry_form.as_p }}<button>Send Inquiry</button></form>
-{% else %}<p><a href="/login/">Login</a> to send an inquiry.</p>{% endif %}
-</div></div>{% endblock %}
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="detail-layout">
+    <div>
+        {% if property.image %}
+            <img class="detail-img" src="{{ property.image.url }}">
+        {% endif %}
+
+        {% if property.video %}
+            <h3>Property / Access Road Video</h3>
+            <video class="video" controls>
+                <source src="{{ property.video.url }}">
+            </video>
+        {% endif %}
+    </div>
+
+    <div class="detail-info">
+        <h2>{{ property.title }}</h2>
+
+        <p><b>Area:</b> {{ property.area }}</p>
+        <p><b>Price:</b> UGX {{ property.price }}/month</p>
+
+        <p><b>Description:</b></p>
+        <p>{{ property.description }}</p>
+
+        <p><strong>Total Units:</strong> {{ property.total_units }}</p>
+        <p><strong>Booked Units:</strong> {{ property.booked_units }}</p>
+        <p><strong>Available Units:</strong> {{ property.available_units }}</p>
+
+        <p><b>Access Road:</b></p>
+        <p>{{ property.access_road_description }}</p>
+
+        <p><b>Nearby Facilities:</b></p>
+        <p>{{ property.facilities|default:"Not specified" }}</p>
+
+        <p><b>Landlord:</b> {{ property.landlord.get_full_name|default:property.landlord.username }}</p>
+
+        {% if user.is_authenticated %}
+
+            {% if property.available_units > 0 %}
+            <form method="post" action="/book/{{ property.id }}/">
+                {% csrf_token %}
+                <textarea name="message" placeholder="Enter booking message"></textarea>
+                <button type="submit">Book Property</button>
+            </form>
+            {% endif %}
+
+            <hr>
+
+            <h3>Send Inquiry to Landlord</h3>
+
+            <form method="post" action="/inquiry/{{ property.id }}/" class="form-card small">
+                {% csrf_token %}
+                {{ inquiry_form.as_p }}
+                <button type="submit">Send Inquiry</button>
+            </form>
+
+        {% else %}
+
+            <p>
+                <a href="/login/">Login</a> to send an inquiry or book this property.
+            </p>
+
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

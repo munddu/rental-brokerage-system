@@ -1,9 +1,117 @@
-{% extends 'base.html' %}{% block content %}
-<h2>Landlord Dashboard</h2><a class="btn" href="/properties/add/">Add New Property</a>
-<h3>My Properties</h3><table><tr><th>Title</th><th>Area</th><th>Price</th><th>Status</th></tr>
-{% for property in properties %}<tr><td>{{ property.title }}</td><td>{{ property.area }}</td><td>UGX {{ property.price }}</td><td>{{ property.status }}</td></tr>
-{% empty %}<tr><td colspan="4">No properties posted yet.</td></tr>{% endfor %}</table>
-<h3>Tenant Inquiries</h3><table><tr><th>Property</th><th>Tenant</th><th>Message</th><th>Date</th></tr>
-{% for inquiry in inquiries %}<tr><td>{{ inquiry.property.title }}</td><td>{{ inquiry.tenant.username }}</td><td>{{ inquiry.message }}</td><td>{{ inquiry.created_at }}</td></tr>
-{% empty %}<tr><td colspan="4">No inquiries yet.</td></tr>{% endfor %}</table>
+{% extends 'base.html' %}
+{% block content %}
+
+<h2>Landlord Dashboard</h2>
+
+<a class="btn" href="/properties/add/">Add New Property</a>
+
+<h3>My Properties</h3>
+<table>
+    <tr>
+        <th>Title</th>
+        <th>Area</th>
+        <th>Price</th>
+        <th>Total Units</th>
+        <th>Booked</th>
+        <th>Available</th>
+        <th>Status</th>
+    </tr>
+
+    {% for property in properties %}
+    <tr>
+        <td>{{ property.title }}</td>
+        <td>{{ property.area }}</td>
+        <td>UGX {{ property.price }}</td>
+        <td>{{ property.total_units }}</td>
+        <td>{{ property.booked_units }}</td>
+        <td>{{ property.available_units }}</td>
+        <td>{{ property.status }}</td>
+    </tr>
+    {% empty %}
+    <tr>
+        <td colspan="7">No properties posted yet.</td>
+    </tr>
+    {% endfor %}
+</table>
+
+
+<h3>Bookings</h3>
+<table>
+    <tr>
+        <th>Property</th>
+        <th>Tenant</th>
+        <th>Message</th>
+        <th>Status</th>
+        <th>Landlord Response</th>
+        <th>Action</th>
+    </tr>
+
+    {% for booking in bookings %}
+    <tr>
+        <td>{{ booking.property.title }}</td>
+        <td>{{ booking.tenant.username }}</td>
+        <td>{{ booking.message }}</td>
+        <td>{{ booking.status }}</td>
+        <td>{{ booking.landlord_response }}</td>
+        <td>
+            {% if booking.status == 'Pending' %}
+                <form method="post" action="/booking/approve/{{ booking.id }}/">
+                    {% csrf_token %}
+                    <textarea name="landlord_response" placeholder="Write approval comment"></textarea>
+                    <button type="submit">Approve</button>
+                </form>
+
+                <form method="post" action="/booking/reject/{{ booking.id }}/">
+                    {% csrf_token %}
+                    <textarea name="landlord_response" placeholder="Write rejection reason"></textarea>
+                    <button type="submit">Reject</button>
+                </form>
+            {% else %}
+                Completed
+            {% endif %}
+        </td>
+    </tr>
+    {% empty %}
+    <tr>
+        <td colspan="6">No bookings yet.</td>
+    </tr>
+    {% endfor %}
+</table>
+
+
+<h3>Tenant Inquiries</h3>
+<table>
+    <tr>
+        <th>Property</th>
+        <th>Tenant</th>
+        <th>Message</th>
+        <th>Date</th>
+        <th>Response</th>
+    </tr>
+
+    {% for inquiry in inquiries %}
+    <tr>
+        <td>{{ inquiry.property.title }}</td>
+        <td>{{ inquiry.tenant.username }}</td>
+        <td>{{ inquiry.message }}</td>
+        <td>{{ inquiry.created_at }}</td>
+        <td>
+            {% if inquiry.response %}
+                {{ inquiry.response.response }}
+            {% else %}
+                <form method="post" action="/inquiry/respond/{{ inquiry.id }}/">
+                    {% csrf_token %}
+                    <textarea name="response" placeholder="Write response to tenant"></textarea>
+                    <button type="submit">Send Response</button>
+                </form>
+            {% endif %}
+        </td>
+    </tr>
+    {% empty %}
+    <tr>
+        <td colspan="5">No inquiries yet.</td>
+    </tr>
+    {% endfor %}
+</table>
+
 {% endblock %}

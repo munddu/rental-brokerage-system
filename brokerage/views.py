@@ -3,8 +3,8 @@ from django.contrib.auth import login,logout
 from django.contrib.auth.decorators import login_required,user_passes_test
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404,redirect,render
-from .forms import RegisterForm,LoginForm,PropertyForm,InquiryForm
-from .models import Property,Inquiry,KAMPALA_AREAS
+from .forms import RegisterForm, LoginForm, PropertyForm, InquiryForm, BookingForm, InquiryResponseForm
+from .models import Property, Inquiry, Booking, InquiryResponse, KAMPALA_AREAS
 
 def is_admin(user): return user.is_authenticated and user.is_staff
 def is_landlord(user): return user.is_authenticated and hasattr(user,'profile') and user.profile.role=='Landlord'
@@ -68,18 +68,134 @@ def landlord_dashboard(request):
         messages.error(request,'Only landlords can access this page.'); return redirect('home')
     properties=Property.objects.filter(landlord=request.user)
     inquiries=Inquiry.objects.filter(property__landlord=request.user)
-    return render(request,'dashboards/landlord.html',{'properties':properties,'inquiries':inquiries})
+    bookings = Booking.objects.filter(property__landlord=request.user)
+    return render(request, 'dashboards/landlord.html', {
+    'properties': properties,
+    'inquiries': inquiries,
+    'bookings': bookings
+})
 
 @user_passes_test(is_admin)
 def admin_dashboard(request):
     return render(request,'dashboards/admin_dashboard.html',{'pending':Property.objects.filter(status='Pending'),'approved':Property.objects.filter(status='Approved')[:10],'rejected':Property.objects.filter(status='Rejected')[:10]})
 
 @user_passes_test(is_admin)
-def approve_property(request,property_id):
-    p=get_object_or_404(Property,id=property_id); p.status='Approved'; p.admin_comment=''; p.save()
-    messages.success(request,'Property approved.'); return redirect('admin_dashboard')
+def approve_property(request, property_id):
+    property_obj = get_object_or_404(Property, id=property_id)
+
+    if request.method == 'POST':
+        property_obj.status = 'Approved'
+        property_obj.admin_comment = request.POST.get('admin_comment', '')
+        property_obj.save()
+
+        messages.success(request, "Property approved successfully.")
+        return redirect('admin_dashboard')
+
+    return render(request, 'dashboards/admin_preview.html', {
+        'property': property_obj,
+        'action': 'approve'
+    })
 
 @user_passes_test(is_admin)
-def reject_property(request,property_id):
-    p=get_object_or_404(Property,id=property_id); p.status='Rejected'; p.admin_comment='Rejected by administrator.'; p.save()
-    messages.warning(request,'Property rejected.'); return redirect('admin_dashboard')
+def reject_property(request, property_id):
+    property_obj = get_object_or_404(Property, id=property_id)
+
+    if request.method == 'POST':
+        property_obj.status = 'Rejected'
+        property_obj.admin_comment = request.POST.get('admin_comment', '')
+        property_obj.save()
+
+        messages.warning(request, "Property rejected.")
+        return redirect('admin_dashboard')
+
+    return render(request, 'dashboards/admin_preview.html', {
+        'property': property_obj,
+        'action': 'reject'
+    })
+
+@login_required
+@login_required
+def book_property(request, property_id):
+    property_obj = get_object_or_404(Property, id=property_id, status='Approved')
+
+    if property_obj.available_units <= 0:
+        messages.error(request, "No units are available for booking.")
+        return redirect('property_detail', property_id=property_id)
+
+    if request.method == 'POST':
+        form = BookingForm(request.POST)
+        if form.is_valid():
+            booking = form.save(commit=False)
+            booking.property = property_obj
+            booking.tenant = request.user
+            booking.status = 'Pending'
+            booking.save()
+
+            messages.success(request, "Booking request submitted successfully. Please wait for landlord approval.")
+            return redirect('property_detail', property_id=property_id)
+
+    return redirect('property_detail', property_id=property_id)
+
+
+@login_required
+def respond_inquiry(request, inquiry_id):
+    inquiry = get_object_or_404(Inquiry, id=inquiry_id, property__landlord=request.user)
+
+    if request.method == 'POST':
+        response_text = request.POST.get('response')
+
+        if response_text:
+            InquiryResponse.objects.create(
+                inquiry=inquiry,
+                landlord=request.user,
+                response=response_text
+            )
+            messages.success(request, "Response sent successfully.")
+        else:
+            messages.error(request, "Response cannot be empty.")
+
+    return redirect('landlord_dashboard')
+
+@login_required
+def approve_booking(request, booking_id):
+    booking = get_object_or_404(Booking, id=booking_id, property__landlord=request.user)
+
+    if booking.status == 'Approved':
+        messages.info(request, "This booking is already approved.")
+        return redirect('landlord_dashboard')
+
+    if booking.property.available_units <= 0:
+        messages.error(request, "No units available to approve this booking.")
+        return redirect('landlord_dashboard')
+
+    booking.status = 'Approved'
+    booking.landlord_response = request.POST.get('landlord_response', 'Booking approved.')
+    booking.save()
+
+    booking.property.booked_units += 1
+    booking.property.save()
+
+    messages.success(request, "Booking approved successfully.")
+    return redirect('landlord_dashboard')
+
+
+@login_required
+def reject_booking(request, booking_id):
+    booking = get_object_or_404(Booking, id=booking_id, property__landlord=request.user)
+
+    booking.status = 'Rejected'
+    booking.landlord_response = request.POST.get('landlord_response', 'Booking rejected.')
+    booking.save()
+
+    messages.warning(request, "Booking rejected.")
+    return redirect('landlord_dashboard')
+
+@login_required
+def tenant_dashboard(request):
+    inquiries = Inquiry.objects.filter(tenant=request.user)
+    bookings = Booking.objects.filter(tenant=request.user)
+
+    return render(request, 'dashboards/tenant.html', {
+        'inquiries': inquiries,
+        'bookings': bookings
+    })
